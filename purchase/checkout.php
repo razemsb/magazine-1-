@@ -14,21 +14,15 @@ if (isset($_POST['name'], $_POST['email'], $_POST['product_ids'], $_POST['phone'
     $phone = htmlspecialchars($_POST['phone']);
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
     $product_ids = htmlspecialchars($_POST['product_ids']);
-    
-    // Получаем общий итог заказа
     $total_amount = 0;
     $product_ids_array = explode(",", $product_ids);
     $products = []; 
-    
-    // Проверка баланса пользователя
     $stmt = $conn->prepare("SELECT balance FROM users WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
     $balance = $user['balance'];
-    
-    // Получение цены товаров и расчет суммы
     foreach ($product_ids_array as $product_id) {
         $stmt = $conn->prepare("SELECT title, price FROM products WHERE id = ?");
         $stmt->bind_param("i", $product_id);
@@ -43,23 +37,16 @@ if (isset($_POST['name'], $_POST['email'], $_POST['product_ids'], $_POST['phone'
             exit;
         }
     }
-    
-    // Если у пользователя недостаточно средств
     if ($balance < $total_amount) {
         echo "<script>alert('Недостаточно средств на балансе для выполнения заказа.'); window.location.href = 'buylist.php';</script>";
         exit;
     }
-    
-    // Начинаем транзакцию
     $conn->begin_transaction();
     try {
-        // Вставляем заказ в таблицу
         $stmt = $conn->prepare("INSERT INTO orders (user_id, name, phone, email, product_id, order_date, total_amount) VALUES (?, ?, ?, ?, ?, NOW(), ?)");
         $stmt->bind_param("issssi", $user_id, $name, $phone, $email, $product_ids, $total_amount);
         $stmt->execute();
         $order_id = $conn->insert_id;
-        
-        // Обновляем количество товаров и снимаем деньги с баланса
         foreach ($product_ids_array as $product_id) {
             $stmt = $conn->prepare("UPDATE products SET quantity = quantity - 1 WHERE id = ? AND quantity > 0");
             $stmt->bind_param("i", $product_id);
@@ -70,20 +57,12 @@ if (isset($_POST['name'], $_POST['email'], $_POST['product_ids'], $_POST['phone'
                 throw new Exception("Товар {$product_data['title']} недоступен или уже распродан.");
             }
         }
-
-        // Снижаем баланс пользователя
         $new_balance = $balance - $total_amount;
         $stmt = $conn->prepare("UPDATE users SET balance = ? WHERE id = ?");
         $stmt->bind_param("di", $new_balance, $user_id);
         $stmt->execute();
-
-        // Завершаем транзакцию
         $conn->commit();
-
-        // Очищаем корзину
         unset($_SESSION['cart']);
-        
-        // Генерация PDF чека
         $pdf = new TCPDF();
         $pdf->AddPage();
         $pdf->SetFont('dejavusans', '', 12);
