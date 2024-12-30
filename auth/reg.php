@@ -33,9 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $hashed_pass = password_hash($pass, PASSWORD_DEFAULT);
     $is_admin = "0";
+    $balance = "0";
     $avatar = "basic_avatar.webp";
-    $stmt = $conn->prepare("INSERT INTO users (Login, Password, Email, avatar, is_admin) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssi", $name, $hashed_pass, $email, $avatar, $is_admin);
+    $stmt = $conn->prepare("INSERT INTO users (Login, Password, Email, avatar, balance, is_admin) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssii", $name, $hashed_pass, $email, $avatar, $balance, $is_admin);
 
     if ($stmt->execute()) {
         echo "<script>alert('Успешная регистрация'); window.location.href = '../main.php';</script>";

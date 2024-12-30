@@ -72,13 +72,11 @@ if ($result->num_rows > 0) {
         </li>
       </ul>
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle mb-auto" style="font-size: 16px;" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <a class="nav-link dropdown-toggle mb-auto" style="font-size: 20px;" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
           <?php if($_SESSION['user_auth'] == true): ?>
+            <span class="me-2 ms-2"><?php echo htmlspecialchars($user_login); ?></span>
+            <span class="me-2"><?php echo htmlspecialchars($user['balance']); ?> руб.</span>
           <img src="avatars/<?php echo htmlspecialchars($user['avatar']); ?>" alt="Avatar" class="circle-avatar" style="width:50px; height:50px; border-radius: 50%; box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);">
-          <?php endif; ?>
-          <?php if ($_SESSION['user_auth'] == true): ?>
-            <span class="me-2"><?php echo htmlspecialchars($user_login); ?></span>
-            <span class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-person-circle"></i></span>
           <?php else: ?>
           <img src="avatars/basic_avatar.webp" alt="Avatar" class="circle-avatar mb-auto" style="width:50px; height:50px; border-radius: 50%; box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);">
           <?php endif; ?>

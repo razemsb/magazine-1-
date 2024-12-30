@@ -47,6 +47,7 @@ error_reporting(E_ALL);
                         <li><a class="dropdown-item <?= ($section == 'users') ? 'active' : '' ?>" href="?section=users">Пользователи</a></li>
                         <li><a class="dropdown-item <?= ($section == 'orders') ? 'active' : '' ?>" href="?section=orders">Заказы</a></li>
                         <li><a class="dropdown-item <?= ($section == 'add_products') ? 'active' : '' ?>" href="?section=add_products">История пополнений</a></li>
+                        <li><a class="dropdown-item <?= ($section == 'add_balance') ? 'active' : '' ?>" href="?section=add_balance">Пополнить баланс</a></li>
                         <li><a class="dropdown-item <?= ($section == 'adds_tovars') ? 'active' : '' ?>" href="?section=adds_tovars">Пополнить товар</a></li>
                         <?php if ($section != 'none'): ?>
                             <li><a class="dropdown-item <?= ($section == 'none') ? 'active' : '' ?>" href="?section=none">Сбросить</a></li>
@@ -330,6 +331,35 @@ $ordersPagination = getPaginatedData($conn, 'orders', $limit, $page);
         <?php for ($i = 1; $i <= $orderesPagination['pages']; $i++): ?>
         <a href="?section=add_products&page=<?= $i ?>" class="btn btn-primary <?= ($page == $i) ? 'active' : '' ?> ms-2 me-2 mb-2"><?= $i ?></a>
         <?php endfor; ?>
+        <?php elseif ($section == 'add_balance'): ?>
+        <?php if (isset($_POST['login']) && isset($_POST['amount'])): 
+            $login = $_POST['login'];
+            $amount = $_POST['amount'];
+            $users = $conn->query("SELECT * FROM users WHERE Login = '$login'")->fetch_assoc();
+            if ($user) {
+                $conn->query("UPDATE users SET balance = balance + '$amount' WHERE Login = '$login'");
+                echo '<div class="alert alert-success mt-1 alert-dismissible fade show" role="alert" style="opacity:1; transition: opacity 0.5s ease-in-out;">Баланс пользователя '.$login.' успешно пополнен на '.$amount.' рублей.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+            }else{
+                echo '<div class="alert alert-danger mt-1 alert-dismissible fade show" role="alert" style="opacity:1; transition: opacity 0.5s ease-in-out;">Пользователь '.$login.' не найден.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+            }
+        endif; ?>
+        <p>Пополнение баланса</p>
+        <form action="" method="POST">
+            <div class="mb-3">
+                <label for="exampleInputLogin" class="form-label">Выберите пользователя</label>
+                <select class="form-select" id="exampleInputLogin" name="login">
+                <?php $users = $conn->query("SELECT * FROM users")->fetch_all(MYSQLI_ASSOC); ?>
+                    <?php foreach ($users as $user): ?>
+                        <option value="<?= $user['Login'] ?>"><?= $user['Login'] ?> (ID: <?= $user['ID'] ?>)</option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="exampleInputAmount" class="form-label">Сумма</label>
+                <input type="number" class="form-control" id="exampleInputAmount" name="amount">
+            </div>
+            <button type="submit" class="btn btn-primary">Пополнить</button>
+        </form>
         <?php elseif ($section == 'none'): ?>
         <p>Статистика</p>
         <div class="d-flex justify-content-center">

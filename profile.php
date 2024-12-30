@@ -152,6 +152,7 @@ if ($result->num_rows > 0) {
                 <?php while($order = $result->fetch_assoc()): ?>
                   <li>
                     <h6>Заказ No<?= $order['id'] ?></h6>
+                    <span>Итого: <?= $order['total_amount'] ?> руб.</span>
                     <p>Дата: <?= date('d.m.Y в H:i', strtotime($order['order_date'])) ?></p>
                     <p>Товары:</p>
                     <ul>

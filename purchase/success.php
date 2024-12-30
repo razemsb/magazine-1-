@@ -5,7 +5,6 @@ $user_login = $_SESSION['user_login'] ?? null;
 $orders_count = $_GET['order_id'] ?? 'не указан';
 $pdf_path = $_SESSION['pdf_path'] ?? null;
 
-$file_exits = $pdf_path && file_exists($pdf_path);
 $sql = "SELECT * FROM users WHERE Login = '$user_login'";
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
@@ -69,11 +68,10 @@ if ($result->num_rows > 0) {
         <h1>Спасибо за ваш заказ! (№<?= htmlspecialchars($orders_count) ?>).</h1>
         <p>Ваш заказ был успешно оформлен.</p>
         <div class="mt-4">
-            <?php if ($file_exists): ?>
+            <?php if (isset($pdf_path)): ?>
                 <a href="data:application/pdf;base64,<?= base64_encode(file_get_contents($pdf_path)) ?>" download="check_order_<?= htmlspecialchars($orders_count) ?>.pdf" class="btn btn-success mt-2">
                     Скачать чек
-                </a>
-                
+                </a>   
             <?php else: ?>
                 <p>Чек недоступен для скачивания.</p>
             <?php endif; ?>
