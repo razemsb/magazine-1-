@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once ('db.php');
+require_once ('database/db.php');
 if($_SESSION['user_auth'] == true) {
   header('Location: main.php');
   exit();
